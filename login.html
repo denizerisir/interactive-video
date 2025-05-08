@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Interactive Video</title>
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --error-color: #dc2626;
+        --background-color: #f3f4f6;
+        --text-color: #1f2937;
+        --border-color: #e5e7eb;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+      }
+
+      .login-container {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        width: 90%;
+        max-width: 400px;
+      }
+
+      h1 {
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-size: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.25rem;
+        font-size: 1rem;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+      }
+
+      button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      button:hover {
+        background-color: #1d4ed8;
+      }
+
+      .error {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: none;
+      }
+
+      .loading {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ffffff;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Interactive Video Login</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+        <button type="submit">
+          <span class="button-text">Login</span>
+          <div class="loading">
+            <div class="spinner"></div>
+            <span>Authenticating...</span>
+          </div>
+        </button>
+        <p class="error" id="error-message"></p>
+      </form>
+    </div>
+
+    <script type="module">
+      import { auth } from './src/js/firebase-config.js'
+      import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js'
+
+      // Remove onAuthStateChanged from imports and initial check
+      document.addEventListener('DOMContentLoaded', () => {
+        const loginForm = document.getElementById('loginForm')
+        const errorMessage = document.getElementById('error-message')
+        const buttonText = document.querySelector('.button-text')
+        const loading = document.querySelector('.loading')
+
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault()
+
+          const email = document.getElementById('email').value
+          const password = document.getElementById('password').value
+
+          // Show loading state
+          buttonText.style.display = 'none'
+          loading.style.display = 'flex'
+          errorMessage.style.display = 'none'
+
+          try {
+            await signInWithEmailAndPassword(auth, email, password)
+            window.location.replace('index.html') // Direct redirect after successful login
+          } catch (error) {
+            errorMessage.textContent = error.message
+            errorMessage.style.display = 'block'
+            buttonText.style.display = 'block'
+            loading.style.display = 'none'
+          }
+        })
+      })
+    </script>
+  </body>
+</html>
